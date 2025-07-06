@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion - Yardapay </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0F2C4B 0%, #2B9C77 100%);
+            color: #333;
+        }
+
+        /* Login Page */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0F2C4B 0%, #2B9C77 100%);
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-box h1 {
+            color: #0F2C4B;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #0F2C4B;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .btn {
+            background-color: #2B9C77;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #238a63;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: none;
+        }
+
+        .navbar {
+            background-color: #0F2C4B;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .sidebar {
+            background-color: #f8f9fa;
+            width: 250px;
+            min-height: calc(100vh - 60px);
+            padding: 20px;
+            float: left;
+            border-right: 1px solid #ddd;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px 15px;
+            color: #0F2C4B;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            background-color: #2B9C77;
+            color: white;
+        }
+
+        .content {
+            margin-left: 250px;
+            padding: 30px;
+            min-height: calc(100vh - 60px);
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #0F2C4B;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2B9C77;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        th {
+            background-color: #0F2C4B;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 5px 15px;
+            font-size: 14px;
+        }
+
+        /* Forms */
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+        }
+
+        .filter-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .filter-container .form-group {
+            flex: 1;
+            min-width: 200px;
+            margin-bottom: 0;
+        }
+
+        /* Analytics */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .analytics-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .analytics-card h3 {
+            color: #0F2C4B;
+            margin-bottom: 20px;
+        }
+
+        .analytics-card .metric {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2B9C77;
+        }
+
+        .analytics-card .label {
+            color: #666;
+            margin-top: 10px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                float: none;
+                min-height: auto;
+            }
+            
+            .content {
+                margin-left: 0;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        footer {
+            background-color: #0F2C4B;
+            color: white;
+            padding: 1em;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            font-size: 0.9em;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="login-container" id="loginPage">
+        <div class="login-box">
+            <h1> 🔐 CONNEXION</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Nom d'utilisateur</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">👤 Se connecter</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div class="main-container" id="mainApp">
+        <nav class="navbar">
+            <h1>Yardapay - Gestion des activités 👥 💸</h1>
+            <div class="navbar-right">
+                <span>Bonjour <span id="currentUsername"></span></span>
+                <button class="btn btn-danger" onclick="logout()"> 🔓 Déconnexion</button>
+            </div>
+        </nav>
+
+        <div class="sidebar">
+            <ul>
+                <li><a href="#" onclick="showPage('dashboard')" class="active">📊 Dashboard</a></li>
+                <li><a href="#" onclick="showPage('clients')">👥 Clients</a></li>
+                <li><a href="#" onclick="showPage('transferts')"> 💸 Transferts</a></li>
+                <li><a href="#" onclick="showPage('analytics')"> 📈 Analyses</a></li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <!-- Dashboard Page -->
+            <div id="dashboard" class="page" style="display: block;">
+                <h2 style="color: #f0f0f0;">Dashboard</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Clients Total</h3>
+                        <div class="value" id="totalClients">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Transferts</h3>
+                        <div class="value" id="totalTransferts">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Chiffre d'Affaires</h3>
+                        <div class="value" id="chiffreAffaires">0 €</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Frais Collectés</h3>
+                        <div class="value" id="fraisCollectes">0 €</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clients Page -->
+            <div id="clients" class="page">
+                <h2 style="color: #f0f0f0;">Gestion des Clients</h2>
+                <button class="btn" onclick="showClientModal()">Créer un client</button>
+                <table id="clientsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Téléphone</th>
+                            <th>Pays</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Transferts Page -->
+            <div id="transferts" class="page">
+                <h2 style="color: #f0f0f0;">Gestion des Transferts</h2>
+                <button class="btn" onclick="showTransfertModal()">Créer un transfert</button>
+                
+                <div class="filter-container">
+                    <div class="form-group">
+                        <label>Date début</label>
+                        <input type="date" id="filterDateDebut">
+                    </div>
+                    <div class="form-group">
+                        <label>Date fin</label>
+                        <input type="date" id="filterDateFin">
+                    </div>
+                    <div class="form-group">
+                        <label>Client</label>
+                        <select id="filterClient">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Moyen</label>
+                        <select id="filterMoyen">
+                            <option value="">Tous</option>
+                            <option value="Wero">Wero</option>
+                            <option value="SEPA">SEPA</option>
+                            <option value="Mynita">Mynita</option>
+                            <option value="Revolut">Revolut</option>
+                            <option value="Virement">Espèce</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="applyFilters()">Appliquer les filtres</button>
+                    <button class="btn btn-danger" onclick="resetFilters()">Réinitialiser</button>
+                </div>
+
+                <table id="transfertsTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Client</th>
+                            <th>Montant envoyé</th>
+                            <th>Frais</th>
+                            <th>Montant reçu</th>
+                            <th>Moyen</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Analytics Page -->
+            <div id="analytics" class="page">
+                <h2 style="color: #f0f0f0;">Analyses</h2>
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h3>Transfert Moyen</h3>
+                        <div class="metric" id="transfertMoyen">0 €</div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Pays Principal</h3>
+                        <div class="metric" id="paysPrincipal">-</div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Moyen Principal</h3>
+                        <div class="metric" id="moyenPrincipal">-</div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Taux de Frais Moyen</h3>
+                        <div class="metric" id="tauxFraisMoyen">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Modal -->
+    <div id="clientModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeClientModal()">&times;</span>
+            <h2 id="clientModalTitle">Créer un client</h2>
+            <form id="clientForm">
+                <input type="hidden" id="clientId">
+                <div class="form-group">
+                    <label>Nom</label>
+                    <input type="text" id="clientNom" required>
+                </div>
+                <div class="form-group">
+                    <label>Numéro de téléphone</label>
+                    <input type="tel" id="clientTelephone" required>
+                </div>
+                <div class="form-group">
+                    <label>Pays de résidence</label>
+                    <select id="clientPays" required>
+                        <option value="">Sélectionner</option>
+                        <option value="Niger">Niger</option>
+                        <option value="France">France</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Enregistrer</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transfert Modal -->
+    <div id="transfertModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeTransfertModal()">&times;</span>
+            <h2 id="transfertModalTitle">Créer un transfert</h2>
+            <form id="transfertForm">
+                <input type="hidden" id="transfertId">
+                <div class="form-group">
+                    <label>Client</label>
+                    <select id="transfertClient" required>
+                        <option value="">Sélectionner</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Montant envoyé</label>
+                    <input type="number" step="0.01" id="transfertMontantEnvoye" required>
+                </div>
+                <div class="form-group">
+                    <label>Frais</label>
+                    <input type="number" step="0.01" id="transfertFrais" required>
+                </div>
+                <div class="form-group">
+                    <label>Montant reçu</label>
+                    <input type="number" step="0.01" id="transfertMontantRecu" required>
+                </div>
+                <div class="form-group">
+                    <label>Pays origine</label>
+                    <select id="transfertPaysOrigine" required>
+                        <option value="">Sélectionner</option>
+                        <option value="Niger">Niger</option>
+                        <option value="France">France</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Pays destination</label>
+                    <select id="transfertPaysDestination" required>
+                        <option value="">Sélectionner</option>
+                        <option value="Niger">Niger</option>
+                        <option value="France">France</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Moyen</label>
+                    <select id="transfertMoyen" required>
+                        <option value="">Sélectionner</option>
+                        <option value="Wero">Wero</option>
+                        <option value="SEPA">SEPA</option>
+                        <option value="Mynita">Mynita</option>
+                        <option value="Revolut">Revolut</option>
+                        <option value="Virement">Espèce</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Enregistrer le transfert</button>
+            </form>
+        </div>
+    </div>
+        <footer style="background-color: #0F2C4B; color: white; padding: 1em; text-align: center; position: fixed; bottom: 0; width: 100%;">
+            © 2025 Yardapay – Tous droits réservés
+        </footer>
+
+    <script>
+        let currentUser = null;
+        let clients = [];
+        let transferts = [];
+
+        // Check authentication on load
+        window.onload = function() {
+            checkAuth();
+        };
+
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/current-user');
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.username;
+                    showMainApp();
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+            }
+        }
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.username;
+                    showMainApp();
+                } else {
+                    alert('Identifiants invalides');
+                }
+            } catch (error) {
+                alert('Erreur de connexion');
+            }
+        });
+
+        function showMainApp() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('currentUsername').textContent = currentUser;
+            loadDashboard();
+            loadClients();
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+                currentUser = null;
+            } catch (error) {
+                console.error('Logout failed:', error);
+            }
+        }
+
+        // Page navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.style.display = 'none';
+            });
+            document.getElementById(pageId).style.display = 'block';
+
+            // Update active menu
+            document.querySelectorAll('.sidebar a').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Load page data
+            if (pageId === 'dashboard') loadDashboard();
+            else if (pageId === 'clients') loadClients();
+            else if (pageId === 'transferts') loadTransferts();
+            else if (pageId === 'analytics') loadAnalytics();
+        }
+
+        // Dashboard
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/dashboard');
+                const data = await response.json();
+                
+                document.getElementById('totalClients').textContent = data.totalClients;
+                document.getElementById('totalTransferts').textContent = data.totalTransferts;
+                document.getElementById('chiffreAffaires').textContent = data.chiffreAffaires.toFixed(2) + ' €';
+                document.getElementById('fraisCollectes').textContent = data.fraisCollectes.toFixed(2) + ' €';
+            } catch (error) {
+                console.error('Dashboard load failed:', error);
+            }
+        }
+
+        // Clients
+        async function loadClients() {
+            try {
+                const response = await fetch('/api/clients');
+                clients = await response.json();
+                displayClients();
+                updateClientSelects();
+            } catch (error) {
+                console.error('Clients load failed:', error);
+            }
+        }
+
+        function displayClients() {
+            const tbody = document.querySelector('#clientsTable tbody');
+            tbody.innerHTML = '';
+            
+            clients.forEach(client => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${client.id}</td>
+                    <td>${client.nom}</td>
+                    <td>${client.numero_telephone}</td>
+                    <td>${client.pays_residence}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-small" onclick="editClient(${client.id})">✏️</button>
+                            <button class="btn btn-small" onclick="detailClient(${client.id})">📄</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteClient(${client.id})">🗑️</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateClientSelects() {
+            const selects = [document.getElementById('filterClient'), document.getElementById('transfertClient')];
+            
+            selects.forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">Sélectionner</option>';
+                
+                clients.forEach(client => {
+                    const option = document.createElement('option');
+                    option.value = client.id;
+                    option.textContent = client.nom;
+                    select.appendChild(option);
+                });
+                
+                select.value = currentValue;
+            });
+        }
+
+        function showClientModal(client = null) {
+            document.getElementById('clientModal').style.display = 'block';
+            
+            if (client) {
+                document.getElementById('clientModalTitle').textContent = 'Modifier le client';
+                document.getElementById('clientId').value = client.id;
+                document.getElementById('clientNom').value = client.nom;
+                document.getElementById('clientTelephone').value = client.numero_telephone;
+                document.getElementById('clientPays').value = client.pays_residence;
+            } else {
+                document.getElementById('clientModalTitle').textContent = 'Créer un client';
+                document.getElementById('clientForm').reset();
+                document.getElementById('clientId').value = '';
+            }
+        }
+
+        function closeClientModal() {
+            document.getElementById('clientModal').style.display = 'none';
+        }
+
+        function editClient(id) {
+            const client = clients.find(c => c.id === id);
+            showClientModal(client);
+        }
+
+        async function deleteClient(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
+                try {
+                    await fetch(`/api/clients/${id}`, { method: 'DELETE' });
+                    loadClients();
+                } catch (error) {
+                    alert('Erreur lors de la suppression');
+                }
+            }
+        }
+
+        document.getElementById('clientForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const clientData = {
+                nom: document.getElementById('clientNom').value,
+                numero_telephone: document.getElementById('clientTelephone').value,
+                pays_residence: document.getElementById('clientPays').value
+            };
+            
+            const id = document.getElementById('clientId').value;
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `/api/clients/${id}` : '/api/clients';
+            
+            try {
+                await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(clientData)
+                });
+                
+                closeClientModal();
+                loadClients();
+            } catch (error) {
+                alert('Erreur lors de l\'enregistrement');
+            }
+        });
+
+        // Transferts
+        async function loadTransferts() {
+    try {
+        console.log('Loading transferts...'); // Debug
+        const response = await fetch('/api/transferts');
+        if (!response.ok) throw new Error('Network response was not ok');
+        transferts = await response.json();
+        console.log('Transferts loaded:', transferts); // Debug
+        displayTransferts();
+    } catch (error) {
+        console.error('Transferts load failed:', error);
+        alert('Erreur lors du chargement des transferts: ' + error.message);
+    }
+}
+        function displayTransferts() {
+            const tbody = document.querySelector('#transfertsTable tbody');
+            tbody.innerHTML = '';
+            
+            transferts.forEach(transfert => {
+                const row = document.createElement('tr');
+                const date = new Date(transfert.date).toLocaleDateString('fr-FR');
+                
+                row.innerHTML = `
+                    <td>${date}</td>
+                    <td>${transfert.client_nom}</td>
+                    <td>${transfert.montant_envoye.toFixed(2)} €</td>
+                    <td>${transfert.frais.toFixed(2)} €</td>
+                    <td>${transfert.montant_recu.toFixed(2)} €</td>
+                    <td>${transfert.moyen}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-small" onclick="editTransfert(${transfert.id})">✏️</button>
+                            <button class="btn btn-small btn-danger" onclick="detailsTransfert(${transfert.id})">📄</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteTransfert(${transfert.id})">🗑️</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function showTransfertModal(transfert = null) {
+            document.getElementById('transfertModal').style.display = 'block';
+            
+            if (transfert) {
+                document.getElementById('transfertModalTitle').textContent = 'Modifier le transfert';
+                document.getElementById('transfertId').value = transfert.id;
+                document.getElementById('transfertClient').value = transfert.client_id;
+                document.getElementById('transfertMontantEnvoye').value = transfert.montant_envoye;
+                document.getElementById('transfertFrais').value = transfert.frais;
+                document.getElementById('transfertMontantRecu').value = transfert.montant_recu;
+                document.getElementById('transfertPaysOrigine').value = transfert.pays_origine;
+                document.getElementById('transfertPaysDestination').value = transfert.pays_destination;
+                document.getElementById('transfertMoyen').value = transfert.moyen;
+            } else {
+                document.getElementById('transfertModalTitle').textContent = 'Créer un transfert';
+                document.getElementById('transfertForm').reset();
+                document.getElementById('transfertId').value = '';
+            }
+        }
+
+        function closeTransfertModal() {
+            document.getElementById('transfertModal').style.display = 'none';
+        }
+
+        function editTransfert(id) {
+            const transfert = transferts.find(t => t.id === id);
+            showTransfertModal(transfert);
+        }
+
+        async function deleteTransfert(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce transfert ?')) {
+                try {
+                    await fetch(`/api/transferts/${id}`, { method: 'DELETE' });
+                    loadTransferts();
+                } catch (error) {
+                    alert('Erreur lors de la suppression');
+                }
+            }
+        }
+
+document.getElementById('transfertForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const moyen = document.getElementById('transfertMoyen').value;
+
+    const transfertData = {
+        client_id: parseInt(document.getElementById('transfertClient').value),
+        montant_envoye: parseFloat(document.getElementById('transfertMontantEnvoye').value),
+        frais: parseFloat(document.getElementById('transfertFrais').value),
+        montant_recu: parseFloat(document.getElementById('transfertMontantRecu').value),
+        pays_origine: document.getElementById('transfertPaysOrigine').value,
+        pays_destination: document.getElementById('transfertPaysDestination').value,
+        moyen: moyen
+    };
+            
+            console.log('Sending transfer data:', transfertData);
+            
+            const id = document.getElementById('transfertId').value;
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `/api/transferts/${id}` : '/api/transferts';
+            
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(transfertData)
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Erreur lors de l\'enregistrement');
+                }
+                
+                const result = await response.json();
+                console.log('Transfer saved:', result);
+                
+                closeTransfertModal();
+                loadTransferts();
+                loadDashboard(); // Update dashboard stats
+            } catch (error) {
+                console.error('Error saving transfer:', error);
+                alert('Erreur lors de l\'enregistrement: ' + error.message);
+            }
+        });
+
+        // Filters
+        async function applyFilters() {
+            const params = new URLSearchParams();
+            
+            const dateDebut = document.getElementById('filterDateDebut').value;
+            const dateFin = document.getElementById('filterDateFin').value;
+            const clientId = document.getElementById('filterClient').value;
+            const moyen = document.getElementById('filterMoyen').value;
+            
+            if (dateDebut) params.append('dateDebut', dateDebut);
+            if (dateFin) params.append('dateFin', dateFin);
+            if (clientId) params.append('clientId', clientId);
+            if (moyen) params.append('moyen', moyen);
+            
+            try {
+                const response = await fetch(`/api/transferts?${params}`);
+                transferts = await response.json();
+                displayTransferts();
+            } catch (error) {
+                console.error('Filter failed:', error);
+            }
+        }
+
+        function resetFilters() {
+            document.getElementById('filterDateDebut').value = '';
+            document.getElementById('filterDateFin').value = '';
+            document.getElementById('filterClient').value = '';
+            document.getElementById('filterMoyen').value = '';
+            loadTransferts();
+        }
+
+        // Analytics
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('/api/analytics');
+                const data = await response.json();
+                
+                document.getElementById('transfertMoyen').textContent = data.transfertMoyen.toFixed(2) + ' €';
+                document.getElementById('paysPrincipal').textContent = data.paysPrincipal;
+                document.getElementById('moyenPrincipal').textContent = data.moyenPrincipal;
+                document.getElementById('tauxFraisMoyen').textContent = data.tauxFraisMoyen.toFixed(2) + '%';
+            } catch (error) {
+                console.error('Analytics load failed:', error);
+            }
+        }
+
+        // Auto-calculate received amount
+        document.getElementById('transfertMontantEnvoye').addEventListener('input', calculateMontantRecu);
+        document.getElementById('transfertFrais').addEventListener('input', calculateMontantRecu);
+
+        function calculateMontantRecu() {
+            const montantEnvoye = parseFloat(document.getElementById('transfertMontantEnvoye').value) || 0;
+            const frais = parseFloat(document.getElementById('transfertFrais').value) || 0;
+            document.getElementById('transfertMontantRecu').value = (montantEnvoye - frais).toFixed(2);
+        }
+
+        // Close modals on outside click
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
