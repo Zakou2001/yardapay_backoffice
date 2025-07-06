@@ -992,6 +992,260 @@ document.getElementById('transfertForm').addEventListener('submit', async (e) =>
                 event.target.style.display = 'none';
             }
         }
+        // 1. Détection du type d'appareil
+function isMobile() {
+    return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+// 2. Ajustement automatique de la viewport
+function setupViewport() {
+    // Créer ou mettre à jour la meta viewport
+    let viewport = document.querySelector('meta[name="viewport"]');
+    if (!viewport) {
+        viewport = document.createElement('meta');
+        viewport.name = 'viewport';
+        document.head.appendChild(viewport);
+    }
+    viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+}
+
+// 3. Redimensionnement automatique des éléments
+function makeElementsResponsive() {
+    // Ajuster les images
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+        if (!img.style.maxWidth) {
+            img.style.maxWidth = '100%';
+            img.style.height = 'auto';
+        }
+    });
+
+    // Ajuster les tableaux
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        if (!table.parentElement.classList.contains('table-responsive')) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'table-responsive';
+            wrapper.style.overflowX = 'auto';
+            table.parentNode.insertBefore(wrapper, table);
+            wrapper.appendChild(table);
+        }
+    });
+
+    // Ajuster les conteneurs avec largeur fixe
+    const containers = document.querySelectorAll('div, section, article');
+    containers.forEach(container => {
+        const computedStyle = window.getComputedStyle(container);
+        if (computedStyle.width && computedStyle.width.includes('px')) {
+            const width = parseInt(computedStyle.width);
+            if (width > window.innerWidth) {
+                container.style.maxWidth = '100%';
+                container.style.width = 'auto';
+            }
+        }
+    });
+}
+
+// 4. Ajustement de la navigation pour mobile
+function makeNavigationResponsive() {
+    const nav = document.querySelector('nav, .navbar, .navigation');
+    if (nav && isMobile()) {
+        // Créer un bouton menu burger s'il n'existe pas
+        let menuButton = document.querySelector('.menu-toggle');
+        if (!menuButton) {
+            menuButton = document.createElement('button');
+            menuButton.className = 'menu-toggle';
+            menuButton.innerHTML = '☰';
+            menuButton.style.cssText = `
+                display: block;
+                background: none;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                padding: 10px;
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                z-index: 1000;
+            `;
+            nav.appendChild(menuButton);
+        }
+
+        // Rendre le menu collapsible
+        const menuItems = nav.querySelector('ul, .menu-items');
+        if (menuItems) {
+            menuItems.style.cssText = `
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: white;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                z-index: 999;
+            `;
+
+            menuButton.addEventListener('click', () => {
+                menuItems.style.display = menuItems.style.display === 'none' ? 'block' : 'none';
+            });
+        }
+    }
+}
+
+// 5. Ajustement des formulaires
+function makeFormsResponsive() {
+    const inputs = document.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        if (isMobile()) {
+            input.style.cssText = `
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                font-size: 16px;
+                padding: 12px;
+                margin-bottom: 10px;
+            `;
+        }
+    });
+
+    const buttons = document.querySelectorAll('button, input[type="submit"]');
+    buttons.forEach(button => {
+        if (isMobile()) {
+            button.style.cssText = `
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+                margin: 5px 0;
+            `;
+        }
+    });
+}
+
+// 6. Ajustement des polices et espacement
+function adjustTypography() {
+    if (isMobile()) {
+        const body = document.body;
+        body.style.fontSize = '16px';
+        body.style.lineHeight = '1.5';
+        body.style.padding = '10px';
+
+        // Ajuster les titres
+        const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+        headings.forEach(heading => {
+            const currentSize = parseInt(window.getComputedStyle(heading).fontSize);
+            heading.style.fontSize = Math.min(currentSize, 28) + 'px';
+            heading.style.lineHeight = '1.2';
+        });
+    }
+}
+
+// 7. Gestion des événements tactiles
+function addTouchSupport() {
+    if (isMobile()) {
+        // Améliorer les zones tactiles
+        const clickableElements = document.querySelectorAll('a, button, input, select, textarea');
+        clickableElements.forEach(element => {
+            element.style.minHeight = '44px';
+            element.style.minWidth = '44px';
+        });
+
+        // Désactiver le zoom sur les inputs
+        const inputs = document.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                const viewport = document.querySelector('meta[name="viewport"]');
+                if (viewport) {
+                    viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+                }
+            });
+        });
+    }
+}
+
+// 8. Fonction principale d'initialisation
+function initResponsiveDesign() {
+    setupViewport();
+    makeElementsResponsive();
+    makeNavigationResponsive();
+    makeFormsResponsive();
+    adjustTypography();
+    addTouchSupport();
+}
+
+// 9. Réajustement lors du redimensionnement
+function handleResize() {
+    makeElementsResponsive();
+    adjustTypography();
+}
+
+// 10. Styles CSS injectés dynamiquement
+function injectResponsiveCSS() {
+    const style = document.createElement('style');
+    style.textContent = `
+        @media (max-width: 768px) {
+            * {
+                box-sizing: border-box;
+            }
+            
+            body {
+                margin: 0;
+                padding: 10px;
+                overflow-x: hidden;
+            }
+            
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .menu-toggle {
+                display: block !important;
+            }
+            
+            img {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+            
+            pre, code {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+            
+            .container, .wrapper {
+                max-width: 100% !important;
+                padding: 0 15px;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .menu-toggle {
+                display: none !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Initialisation automatique
+document.addEventListener('DOMContentLoaded', () => {
+    injectResponsiveCSS();
+    initResponsiveDesign();
+});
+
+// Réajustement lors du redimensionnement
+window.addEventListener('resize', handleResize);
+
+// Export pour utilisation dans Node.js (optionnel)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        isMobile,
+        initResponsiveDesign,
+        makeElementsResponsive,
+        makeNavigationResponsive,
+        makeFormsResponsive
+    };
+}
     </script>
 </body>
 </html>
