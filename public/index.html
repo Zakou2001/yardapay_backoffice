@@ -804,12 +804,15 @@
             }
         });
 
-        // Transferts
-        async function loadTransferts() {
+// Transferts
+async function loadTransferts() {
     try {
         console.log('Loading transferts...'); // Debug
         const response = await fetch('/api/transferts');
-        if (!response.ok) throw new Error('Network response was not ok');
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `HTTP ${response.status}`);
+        }
         transferts = await response.json();
         console.log('Transferts loaded:', transferts); // Debug
         displayTransferts();
@@ -818,87 +821,141 @@
         alert('Erreur lors du chargement des transferts: ' + error.message);
     }
 }
-        function displayTransferts() {
-            const tbody = document.querySelector('#transfertsTable tbody');
-            tbody.innerHTML = '';
-            
-            transferts.forEach(transfert => {
-                const row = document.createElement('tr');
-                const date = new Date(transfert.date).toLocaleDateString('fr-FR');
-                
-                row.innerHTML = `
-                    <td>${date}</td>
-                    <td>${transfert.client_nom}</td>
-                    <td>${transfert.montant_envoye.toFixed(2)} €</td>
-                    <td>${transfert.frais.toFixed(2)} €</td>
-                    <td>${transfert.montant_recu.toFixed(2)} €</td>
-                    <td>${transfert.moyen}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn btn-small" onclick="editTransfert(${transfert.id})">✏️</button>
-                            <button class="btn btn-small btn-danger" onclick="detailsTransfert(${transfert.id})">📄</button>
-                            <button class="btn btn-small btn-danger" onclick="deleteTransfert(${transfert.id})">🗑️</button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
 
-        function showTransfertModal(transfert = null) {
-            document.getElementById('transfertModal').style.display = 'block';
-            
-            if (transfert) {
-                document.getElementById('transfertModalTitle').textContent = 'Modifier le transfert';
-                document.getElementById('transfertId').value = transfert.id;
-                document.getElementById('transfertClient').value = transfert.client_id;
-                document.getElementById('transfertMontantEnvoye').value = transfert.montant_envoye;
-                document.getElementById('transfertFrais').value = transfert.frais;
-                document.getElementById('transfertMontantRecu').value = transfert.montant_recu;
-                document.getElementById('transfertPaysOrigine').value = transfert.pays_origine;
-                document.getElementById('transfertPaysDestination').value = transfert.pays_destination;
-                document.getElementById('transfertMoyen').value = transfert.moyen;
-            } else {
-                document.getElementById('transfertModalTitle').textContent = 'Créer un transfert';
-                document.getElementById('transfertForm').reset();
-                document.getElementById('transfertId').value = '';
-            }
-        }
-
-        function closeTransfertModal() {
-            document.getElementById('transfertModal').style.display = 'none';
-        }
-
-        function editTransfert(id) {
-            const transfert = transferts.find(t => t.id === id);
-            showTransfertModal(transfert);
-        }
-
-        async function deleteTransfert(id) {
-            if (confirm('Êtes-vous sûr de vouloir supprimer ce transfert ?')) {
-                try {
-                    await fetch(`/api/transferts/${id}`, { method: 'DELETE' });
-                    loadTransferts();
-                } catch (error) {
-                    alert('Erreur lors de la suppression');
-                }
-            }
-        }
-
-document.getElementById('transfertForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+function displayTransferts() {
+    const tbody = document.querySelector('#transfertsTable tbody');
+    if (!tbody) {
+        console.error('Table body not found');
+        return;
+    }
     
-    const moyen = document.getElementById('transfertMoyen').value;
+    tbody.innerHTML = '';
+    
+    transferts.forEach(transfert => {
+        const row = document.createElement('tr');
+        const date = new Date(transfert.date).toLocaleDateString('fr-FR');
+        
+        row.innerHTML = `
+            <td>${date}</td>
+            <td>${transfert.client_nom || 'N/A'}</td>
+            <td>${(transfert.montant_envoye || 0).toFixed(2)} €</td>
+            <td>${(transfert.frais || 0).toFixed(2)} €</td>
+            <td>${(transfert.montant_recu || 0).toFixed(2)} €</td>
+            <td>${transfert.moyen || 'N/A'}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn btn-small" onclick="editTransfert(${transfert.id})" title="Modifier">✏️</button>
+                    <button class="btn btn-small btn-info" onclick="detailsTransfert(${transfert.id})" title="Détails">📄</button>
+                    <button class="btn btn-small btn-danger" onclick="deleteTransfert(${transfert.id})" title="Supprimer">🗑️</button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
 
-    const transfertData = {
-        client_id: parseInt(document.getElementById('transfertClient').value),
-        montant_envoye: parseFloat(document.getElementById('transfertMontantEnvoye').value),
-        frais: parseFloat(document.getElementById('transfertFrais').value),
-        montant_recu: parseFloat(document.getElementById('transfertMontantRecu').value),
-        pays_origine: document.getElementById('transfertPaysOrigine').value,
-        pays_destination: document.getElementById('transfertPaysDestination').value,
-        moyen: moyen
-    };
+function showTransfertModal(transfert = null) {
+    const modal = document.getElementById('transfertModal');
+    if (!modal) {
+        console.error('Modal not found');
+        return;
+    }
+    
+    modal.style.display = 'block';
+    
+    if (transfert) {
+        document.getElementById('transfertModalTitle').textContent = 'Modifier le transfert';
+        document.getElementById('transfertId').value = transfert.id;
+        document.getElementById('transfertClient').value = transfert.client_id || '';
+        document.getElementById('transfertMontantEnvoye').value = transfert.montant_envoye || '';
+        document.getElementById('transfertFrais').value = transfert.frais || '';
+        document.getElementById('transfertMontantRecu').value = transfert.montant_recu || '';
+        document.getElementById('transfertPaysOrigine').value = transfert.pays_origine || '';
+        document.getElementById('transfertPaysDestination').value = transfert.pays_destination || '';
+        document.getElementById('transfertMoyen').value = transfert.moyen || '';
+    } else {
+        document.getElementById('transfertModalTitle').textContent = 'Créer un transfert';
+        const form = document.getElementById('transfertForm');
+        if (form) form.reset();
+        document.getElementById('transfertId').value = '';
+    }
+}
+
+function closeTransfertModal() {
+    const modal = document.getElementById('transfertModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function editTransfert(id) {
+    const transfert = transferts.find(t => t.id === id);
+    if (transfert) {
+        showTransfertModal(transfert);
+    } else {
+        console.error('Transfert non trouvé:', id);
+    }
+}
+
+// Fonction manquante pour les détails
+function detailsTransfert(id) {
+    const transfert = transferts.find(t => t.id === id);
+    if (transfert) {
+        // Vous pouvez implémenter une modal de détails ou un autre affichage
+        alert(`Détails du transfert #${id}:\n` +
+              `Client: ${transfert.client_nom}\n` +
+              `Montant: ${transfert.montant_envoye}€\n` +
+              `Frais: ${transfert.frais}€\n` +
+              `Reçu: ${transfert.montant_recu}€\n` +
+              `Moyen: ${transfert.moyen}`);
+    } else {
+        console.error('Transfert non trouvé:', id);
+    }
+}
+
+async function deleteTransfert(id) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce transfert ?')) {
+        try {
+            const response = await fetch(`/api/transferts/${id}`, { method: 'DELETE' });
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Erreur lors de la suppression');
+            }
+            loadTransferts();
+        } catch (error) {
+            console.error('Delete error:', error);
+            alert('Erreur lors de la suppression: ' + error.message);
+        }
+    }
+}
+
+// Gestionnaire d'événement pour le formulaire
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('transfertForm');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Validation des champs requis
+            const clientId = document.getElementById('transfertClient').value;
+            const montantEnvoye = document.getElementById('transfertMontantEnvoye').value;
+            const frais = document.getElementById('transfertFrais').value;
+            const montantRecu = document.getElementById('transfertMontantRecu').value;
+            
+            if (!clientId || !montantEnvoye || !frais || !montantRecu) {
+                alert('Veuillez remplir tous les champs obligatoires');
+                return;
+            }
+            
+            const transfertData = {
+                client_id: parseInt(clientId),
+                montant_envoye: parseFloat(montantEnvoye),
+                frais: parseFloat(frais),
+                montant_recu: parseFloat(montantRecu),
+                pays_origine: document.getElementById('transfertPaysOrigine').value || '',
+                pays_destination: document.getElementById('transfertPaysDestination').value || '',
+                moyen: document.getElementById('transfertMoyen').value || ''
+            };
             
             console.log('Sending transfer data:', transfertData);
             
@@ -923,13 +980,23 @@ document.getElementById('transfertForm').addEventListener('submit', async (e) =>
                 
                 closeTransfertModal();
                 loadTransferts();
-                loadDashboard(); // Update dashboard stats
+                
+                // Vérifier si loadDashboard existe avant de l'appeler
+                if (typeof loadDashboard === 'function') {
+                    loadDashboard();
+                }
             } catch (error) {
                 console.error('Error saving transfer:', error);
                 alert('Erreur lors de l\'enregistrement: ' + error.message);
             }
         });
+    }
+});
 
+// Charger les transferts au démarrage
+document.addEventListener('DOMContentLoaded', function() {
+    loadTransferts();
+});
         // Filters
         async function applyFilters() {
             const params = new URLSearchParams();
